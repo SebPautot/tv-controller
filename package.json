@@ -1,0 +1,15 @@
+{
+    "name": "tv-orange",
+    "version": "0.0.1",
+    "description": "Control your TV",
+    "main": "tv-controller.js",
+    "scripts": {
+        "start": "node tv-controller.js"
+    },
+    "dependencies": {
+        "cors": "*",
+        "cors-anywhere": "*",
+        "express": "^4.17.1",
+        "express-http-proxy": "*"
+    }
+}
