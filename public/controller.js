@@ -1,7 +1,7 @@
 
 
 function load(){
-    fetch("http://192.168.1.18:3004/192.168.1.10:8080/remoteControl/cmd?operation=10", {
+    fetch("http://192.168.1.24:3004/192.168.1.10:8080/remoteControl/cmd?operation=10", {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -30,7 +30,7 @@ function pushButton(e){
     else
         var key = e;
     var mode = 0;
-    fetch(`http://192.168.1.18:3004/192.168.1.10:8080/remoteControl/cmd?operation=01&key=${key}&mode=${mode}`,{
+    fetch(`http://192.168.1.24:3004/192.168.1.10:8080/remoteControl/cmd?operation=01&key=${key}&mode=${mode}`,{
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -45,7 +45,7 @@ function pushButton(e){
 }
 
 function getChannel(e){
-    fetch(`http://192.168.1.18:3004/192.168.1.10:8080/remoteControl/cmd?operation=09&epg_id=${code}&uui=1`)
+    fetch(`http://192.168.1.24:3004/192.168.1.10:8080/remoteControl/cmd?operation=09&epg_id=${code}&uui=1`)
 }
 
 //SET PUSH BUTTON E LISTENER
@@ -56,7 +56,7 @@ document.getElementById("controller").childNodes.forEach(children=>{
 
 //SET CHANNEL PREVIEW //HTML INCLUDED
 function getChannelPrograms(epg){
-    fetch(`http://192.168.1.18:3004/rp-ott-mediation-tv.woopic.com/live/v3/applications/PC/programs?groupBy=channel&period=current&epgIds=${epg}&mco=OFR`,{
+    fetch(`http://192.168.1.24:3004/rp-ott-mediation-tv.woopic.com/live/v3/applications/PC/programs?groupBy=channel&period=current&epgIds=${epg}&mco=OFR`,{
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -216,7 +216,7 @@ fetch("/channels.json").then(data=>data.json())
             chanElem.value = channel.idEPG;
             chanElem.addEventListener("click", function(e){
                 // /remoteControl/cmd?operation=09&epg_id=CODE_CHAINE&uui=1
-                fetch(`http://192.168.1.18:3004/192.168.1.10:8080/remoteControl/cmd?operation=09&epg_id=${channel.idEPG}&uui=1`,{
+                fetch(`http://192.168.1.24:3004/192.168.1.10:8080/remoteControl/cmd?operation=09&epg_id=${channel.idEPG}&uui=1`,{
                     method: 'GET', // *GET, POST, PUT, DELETE, etc.
                     mode: 'cors', // no-cors, *cors, same-origin
                     cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached

@@ -13,7 +13,7 @@ const listener = app.listen("3003", function() {
 //CORS Anywhere to communicate correctly with decoder
 
 // Listen on a specific host via the HOST environment variable
-var host = "192.168.1.18";
+// var host = "192.168.1.18";
 // Listen on a specific port via the PORT environment variable
 var port = "3004";
 
@@ -23,6 +23,6 @@ cors_proxy.createServer({
     // requireHeader: ['origin', 'x-requested-with'],
     redirectSameOrigin: true,
     removeHeaders: ['cookie', 'cookie2', 'origin']
-}).listen(port, host, function() {
-    console.log('Running CORS Anywhere on ' + host + ':' + port);
+}).listen(port, function() {
+    console.log('Running CORS Anywhere on port '+ port);
 });
