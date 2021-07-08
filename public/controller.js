@@ -25,10 +25,8 @@ load()
 
 
 function pushButton(e){
-    if(isNaN(e))
-        var key = e.currentTarget.value;
-    else
-        var key = e;
+    var key = e.target.value;
+    console.log(e, e.target.value)
     var mode = 0;
     fetch(`http://192.168.1.24:3004/192.168.1.10:8080/remoteControl/cmd?operation=01&key=${key}&mode=${mode}`,{
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -49,7 +47,6 @@ function getChannel(e){
 }
 
 //SET PUSH BUTTON E LISTENER
-
 document.getElementById("controller").childNodes.forEach(children=>{
     children.addEventListener("click", function(e){ pushButton(e) })
 })
