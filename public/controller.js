@@ -13,9 +13,18 @@ function load(){
       })
     .then(res=>res.json())
     .then(data=>{
-        getChannelPrograms(data.result.data.playedMediaId)
+        if(data.result.data.osdContext == "LIVE"){
+        return getChannelPrograms(data.result.data.playedMediaId)
+        }else{
+            getSpecialChannel(data.result.data.osdContext)
+        }
     }).catch(error=>{
-    alert(error)
+
+        console.error(error);
+        document.getElementById("currentChannel-infos").innerHTML = `
+        <h1 class="currentChannel-infos-text">TV OFFLINE</h1>
+        `
+        load()
     })
 }  
 
@@ -26,7 +35,6 @@ load()
 
 function pushButton(e){
     var key = e.target.value;
-    console.log(e, e.target.value)
     var mode = 0;
     fetch(`http://192.168.1.24:3004/192.168.1.10:8080/remoteControl/cmd?operation=01&key=${key}&mode=${mode}`,{
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -39,7 +47,7 @@ function pushButton(e){
         redirect: 'follow' // manual, *follow, error
       })
     .then(res=> res.json())
-    .then(res=> {load();return res})
+    .then(res=> { setTimeout(function(){load();return res},1000)})
 }
 
 function getChannel(e){
@@ -47,12 +55,13 @@ function getChannel(e){
 }
 
 //SET PUSH BUTTON E LISTENER
-document.getElementById("controller").childNodes.forEach(children=>{
-    children.addEventListener("click", function(e){ pushButton(e) })
-})
+
+document.getElementById("controller").addEventListener("click", function(e){ if(e.target.tagName == "BUTTON" )pushButton(e) })
+
 
 //SET CHANNEL PREVIEW //HTML INCLUDED
 function getChannelPrograms(epg){
+    if(!epg) console.error("Error : EPG id missing")
     fetch(`http://192.168.1.24:3004/rp-ott-mediation-tv.woopic.com/live/v3/applications/PC/programs?groupBy=channel&period=current&epgIds=${epg}&mco=OFR`,{
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
@@ -74,7 +83,7 @@ function getChannelPrograms(epg){
                         if(epg == channel.idEPG){
 
                             document.getElementById("currentChannel-infos").innerHTML = `
-                            <img src="${channel.logos[3].listLogos[0].path}">
+                            <div><img src="http://192.168.1.24:3004/${channel.logos[2].listLogos[0].path}"></div>
                             <h1 class="currentChannel-infos-text">${channel.name} - ${channel.slogan}</h1>
                             `
 
@@ -84,9 +93,15 @@ function getChannelPrograms(epg){
 
                             try{
                                 document.getElementById("currentChannel-programPreviews").innerHTML = "";
+
+                                timeToUpdateNum = 0;
+                                toUpdateTime = [];
+
                                 res[epg].forEach(prog=>{
                                     var progPrev = document.createElement("DIV");
                                     progPrev.classList="program-preview"
+                                    
+                                    
                                     var timeData = processTime(prog.diffusionDate, prog.duration)
 
                                     if(timeData.hasStarted)
@@ -94,16 +109,21 @@ function getChannelPrograms(epg){
                                     else
                                         timeTextRemaining = `durée : ${timeData.remaining}`
 
-                                    progPrev.innerHTML = `<h2>${prog.title}</h2><h3>De ${timeData.startTime} à ${timeData.endTime} (${timeTextRemaining})</h3>`
-                                    
-                                    if(prog.covers){
-                                    progPrev.innerHTML += `<div class="program-imagePreview">`
-                                    prog.covers.forEach(cover=>{ progPrev.innerHTML += `<img class="program-imgPreview" src="${cover.url}">`})
-                                    }
-                                    progPrev.innerHTML += `</div>`
+                                    progPrev.innerHTML = `<h2>${prog.title}</h2><div class="update-timePreview-${timeToUpdateNum}"><h3>De ${timeData.startTime} à ${timeData.endTime} <h3><h4>(${timeTextRemaining})</h4></div>`
                                     
                                     if(prog.programType == "EPISODE")
                                         progPrev.innerHTML += `<p>${prog.season.serie.title} saison ${prog.season.number} épisode ${prog.episodeNumber}`
+
+                                    toUpdateTime.push({diffusionDate:prog.diffusionDate, duration:prog.duration})
+                                    timeToUpdateNum+=1;
+
+                                    if(prog.covers){
+                                    progPrev.innerHTML += `<div class="program-imagePreview">`
+                                    progPrev.innerHTML += `<img class="program-imgPreview" src="http://192.168.1.24:3004/${prog.covers[1].url}">`
+                                    }
+                                    progPrev.innerHTML += `</div>`
+                                    
+                                    
 
                                     
                                         document.getElementById("currentChannel-programPreviews").appendChild(progPrev);
@@ -133,24 +153,17 @@ function processTime(startTime, duration){
     var end = new Date(startTime*1000 + (duration*1000));
     var endTimeStr =  `${addZero(end.getHours())}h ${addZero(end.getMinutes())}`;
     //REMAINING
-    if(start.getTime()>now.getTime()){
+    if(start.getTime()<now.getTime()){
         var remaining = (end.getTime() - now.getTime())/1000;
-        var hasStarted = false;
+        var hasStarted = true;
     }else{
         var remaining = (end.getTime() - start.getTime())/1000;
-        var hasStarted = true;
+        var hasStarted = false;
     }
 
     var remainingTimeStr = parseTimeRemaining(remaining, translation);
 
     
-
-    
-    
-    
-    
-
-
     return {
         endTime: endTimeStr,
         remaining: remainingTimeStr,
@@ -208,7 +221,7 @@ fetch("/channels.json").then(data=>data.json())
             var chanElem = document.createElement("DIV");
             chanElem.innerHTML = `
             <p>${channel.name}</p>
-            <img src="${channel.logos[3].listLogos[0].path}">
+            <img src="http://192.168.1.24:3004/${channel.logos[2].listLogos[0].path}">
             `;
             chanElem.value = channel.idEPG;
             chanElem.addEventListener("click", function(e){
@@ -231,3 +244,80 @@ fetch("/channels.json").then(data=>data.json())
             document.getElementById("channels").appendChild(chanElem);
         })
     })
+
+
+//UPDATE TIME
+var toUpdateTime = []
+setInterval(function(){
+    var elementNum = 0;
+
+    toUpdateTime.forEach(prog =>{
+        var timeData = processTime(prog.diffusionDate, prog.duration)
+        var element = document.getElementsByClassName(`update-timePreview-${elementNum}`)[0]
+        if(timeData.hasStarted)
+            timeTextRemaining = `temps restant : ${timeData.remaining}`
+        else
+            timeTextRemaining = `durée : ${timeData.remaining}`
+
+        element.innerHTML = `<h3>De ${timeData.startTime} à ${timeData.endTime} <h3><h4>(${timeTextRemaining})</h4>`
+        elementNum+=1;
+        
+    })
+},1000)
+
+
+//OTHER CONTEXT
+
+function getSpecialChannel(context){
+    switch(context){
+    case "home" : setSpecialChannel("HOME");
+        break;
+    case "MAIN_PROCESS" : setSpecialChannel("En veille");
+        break;
+    case "TVEP": setSpecialChannel("TVEP");
+        break;
+    case "netflix": setSpecialChannel("Netflix", "http://192.168.1.24:3004/https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png");
+        break;
+    case "PROMO_TV": setSpecialChannel("Ecran promotionnel");
+        break;
+    case "DisneyPlus": setSpecialChannel("Disney +","http://192.168.1.24:3004/https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney%2B_logo.svg/1200px-Disney%2B_logo.svg.png");
+        break;
+    case "LEGUIDETV": setSpecialChannel("Guide TV");
+        break;
+    }
+}
+
+function setSpecialChannel(name, logoURL){
+    if(!logoURL)
+        logoURL = "https://c.woopic.com/logo-orange.png"
+    document.getElementById("currentChannel-infos").innerHTML = `
+                            <div><img src="http://192.168.1.24:3004/${logoURL}"></div>
+                            <h1 class="currentChannel-infos-text">${name}</h1>
+                            `
+}
+
+
+//ANIMATIONS AND CONTROLLER
+
+document.getElementById("controller-modifier").addEventListener("click",function(e){
+    controller(e);
+})
+
+var isControllerHidden = true;
+
+function controller(e){
+    
+    if(isControllerHidden){
+        document.getElementById("controller").style.animation = "slidein 1s forwards"
+    }else{
+        document.getElementById("controller").style.animation = "slideout 1s forwards"
+    }
+
+    isControllerHidden = !isControllerHidden;
+
+}
+
+document.getElementById("controller").addEventListener("animationstart", function(){console.log("anim-iteration")});
+document.getElementById("controller").addEventListener("animationend", function(){console.log("anim-iteration")});
+document.getElementById("controller").addEventListener("animationiteration", function(){console.log("anim-iteration")});
+

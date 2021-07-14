@@ -22,7 +22,7 @@ var cors_proxy = require('cors-anywhere');
 cors_proxy.createServer({
     // requireHeader: ['origin', 'x-requested-with'],
     redirectSameOrigin: true,
-    removeHeaders: ['cookie', 'cookie2', 'origin']
+    removeHeaders: ['cookie', 'cookie2', 'origin','cache-control']
 }).listen(port, function() {
     console.log('Running CORS Anywhere on port '+ port);
 });

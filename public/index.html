@@ -3,8 +3,15 @@
         <title>Orange TV Controller</title>
         <script src="controller.js" defer></script>
         <link rel="stylesheet" href="controller-style.css">
+        
+        
+       
     </head>
     <body>
+
+        
+         
+
         <div id="app-controls">
             <!-- <div id="stt">
             <button id="STT-button" onclick="listening ? stop() : start();listening = !listening;">STT</button>
@@ -12,7 +19,7 @@
             </div> -->
 
             <div id="currentChannel-preview">
-                <div id="currentChannel-infos"></div>
+                <div id="currentChannel-infos"><h1 class="currentChannel-infos-text">CONNECTING</h1></div>
                 <div id="currentChannel-programPreviews"></div>
             </div>
 
@@ -23,39 +30,13 @@
         
         
         <div id="controller">
+
+            <div class="floating-controller">
+                <button id="controller-modifier"><img src="/SVG/menu.svg"></button>
+            </div>
+
             <div class="on-off">
-                <button value="116">ON/OFF</button>
-            </div>
-            <div class="num-pad">
-                <div>
-                    <button value="512">0</button>
-                </div>
-                <div>
-                    <button value="513">1</button>
-                    <button value="514">2</button>
-                    <button value="515">3</button>
-                </div>
-                <div>
-                    <button value="516">4</button>
-                    <button value="517">5</button>
-                    <button value="518">6</button>
-                </div>
-                <div>
-                    <button value="519">7</button>
-                    <button value="520">8</button>
-                    <button value="521">9</button>
-                </div>
-            </div>
-
-            <div class="button-line">
-                <button value="402">CH+</button>
-                <button value="403">CH-</button>
-            </div>
-
-            <div class="button-line">
-                <button value="115">VOL+</button>
-                <button value="113">MUTE</button>
-                <button value="114">VOL-</button>
+                <button value="116"><img class="icon svg-power" src="/SVG/power.svg"></button>
             </div>
 
             <div class="cross-buttons">
@@ -73,16 +54,65 @@
             </div>
 
             <div class="button-line">
-                <button value="158">BACK</button>
+                <button value="158"><img class="icon" src="/SVG/Replay_boxed_arrow.svg"></button>
                 <button value="139">MENU</button>
+            </div>
+
+            <div class="button-line">
+                <button value="402"><img class="icon svg-rotated" src="/SVG/arrow-next.svg"></button>
+                <button value="403"><img class="icon svg-rotated" src="/SVG/arrow-previous.svg"></button>
+            </div>
+
+            <div class="button-line">
+                <button value="115"><img class="icon" src="/SVG/volume_high.svg"></button>
+                <button value="113"><img class="icon" src="/SVG/Silent.svg"></button>
+                <button value="114"><img class="icon" src="/SVG/volume_low.svg"></button>
+            </div>
+
+            
+
+            
+            <div class="num-pad">
+                
+                <div>
+                    <button value="513">1</button>
+                    <button value="514">2</button>
+                    <button value="515">3</button>
+                </div>
+                <div>
+                    <button value="516">4</button>
+                    <button value="517">5</button>
+                    <button value="518">6</button>
+                </div>
+                <div>
+                    <button value="519">7</button>
+                    <button value="520">8</button>
+                    <button value="521">9</button>
+                </div>
+                <div>
+                    <button value="512">0</button>
+                    <button value="393">VOD</button>
+                </div>
             </div>
             
             <div class="button-line">
-                <button value="168">&lt;&lt;</button>
-                <button value="159">&gt;&gt;</button>
+                <button value="168">
+                    <img class="icon" src="/SVG/Skip_backward.svg">
+                </button>
+                <button>
+                    <img class="icon svg-playpause" src="/SVG/Play.svg">
+                    <!-- <img class="icon svg-playpause" src="/SVG/Pause.svg"> -->
+                </button>
+                <button value="159">
+                    <img class="icon" src="/SVG/Skip_forward.svg">
+                </button>
+                <button value="167">
+                    <img class="icon" src="/SVG/record.svg">
+                </button>
             </div>
 
         </div>
+        
     </body>
 </html>
 
