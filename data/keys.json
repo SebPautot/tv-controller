@@ -1,0 +1,114 @@
+[
+    {
+        "number": 116,
+        "name": "ON/OFF"
+    },
+    {
+        "number": 512,
+        "name": "0"
+    },
+    {
+        "number": 513,
+        "name": "1"
+    },
+    {
+        "number": 514,
+        "name": "2"
+    },
+    {
+        "number": 515,
+        "name": "3"
+    },
+    {
+        "number": 516,
+        "name": "4"
+    },
+    {
+        "number": 517,
+        "name": "5"
+    },
+    {
+        "number": 518,
+        "name": "6"
+    },
+    {
+        "number": 519,
+        "name": "7"
+    },
+    {
+        "number": 520,
+        "name": "8"
+    },
+    {
+        "number": 521,
+        "name": "9"
+    },
+    {
+        "number": 402,
+        "name": "CH+"
+    },
+    {
+        "number": 403,
+        "name": "CH-"
+    },
+    {
+        "number": 115,
+        "name": "VOL+"
+    },
+    {
+        "number": 114,
+        "name": "VOL-"
+    },
+    {
+        "number": 113,
+        "name": "MUTE"
+    },
+    {
+        "number": 103,
+        "name": "UP"
+    },
+    {
+        "number": 108,
+        "name": "DOWN"
+    },
+    {
+        "number": 105,
+        "name": "LEFT"
+    },
+    {
+        "number": 106,
+        "name": "RIGHT"
+    },
+    {
+        "number": 352,
+        "name": "OK"
+    },
+    {
+        "number": 158,
+        "name": "BACK"
+    },
+    {
+        "number": 139,
+        "name": "MENU"
+    },
+    {
+        "number": 164,
+        "name": "PLAY/PAUSE"
+    },
+    {
+        "number": 168,
+        "name": "FAST BACKWARD"
+    },
+    {
+        "number": 159,
+        "name": "FAST FOWARD"
+    },
+    {
+        "number": 167,
+        "name": "REC"
+    },
+    {
+        "number": 393,
+        "name": "VOD"
+    }
+]

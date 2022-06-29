@@ -6,10 +6,13 @@
     "scripts": {
         "start": "node tv-controller.js"
     },
+    "type": "module",
     "dependencies": {
         "cors": "*",
         "cors-anywhere": "*",
         "express": "^4.17.1",
-        "express-http-proxy": "*"
+        "express-http-proxy": "*",
+        "local-devices": "^3.0.0",
+        "node-fetch": "^3.2.6"
     }
 }
