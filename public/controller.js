@@ -1,169 +1,200 @@
-var address = "192.168.1.16"
+var address = "192.168.1.18"
+var device_int = 0;
 
-function load(){
-    fetch(`http://192.168.1.24:3004/${address}:8080/remoteControl/cmd?operation=10`, {
+
+
+function load() {
+    loadDevices()
+
+    fetch(`/api/getDeviceStatus?device=${device_int}`, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
         headers: {
-          'Content-Type': 'application/json'
-        //   'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
+            //   'Content-Type': 'application/x-www-form-urlencoded'
         },
         redirect: 'follow' // manual, *follow, error
-      })
-    .then(res=>res.json())
-    .then(data=>{
-        if(data.result.data.osdContext == "LIVE"){
-        return getChannelPrograms(data.result.data.playedMediaId)
-        }else{
-            getSpecialChannel(data.result.data.osdContext)
-        }
-    }).catch(error=>{
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            if (data.data.osdContext == "LIVE") {
+                return getChannelPrograms(data.data.playedMediaId)
+            } else {
+                getSpecialChannel(data.data.osdContext)
+            }
+        }).catch(error => {
 
-        console.error(error);
-        document.getElementById("currentChannel-infos").innerHTML = `
+            console.error(error);
+            document.getElementById("currentChannel-infos").innerHTML = `
         <h1 class="currentChannel-infos-text">TV OFFLINE</h1>
         `
-        load()
-    })
-}  
+            load()
+        })
+}
 
 load()
 
+function loadDevices() {
+    fetch("/api/getDeviceList").then(res => res.json()).then(data => {
+        console.log(data);
+        var listContainer = document.getElementById("device-list")
+        listContainer.innerHTML = "";
+        var i = 0;
+        data.forEach(device => {
+            var newDevice = document.createElement("BUTTON");
+            newDevice.value = i;
+            newDevice.innerHTML = `
+            <h1>${device.data.friendlyName}</h1>
+            <p>${device.data.osdContext}</p>
+            `
+
+            var channelName = document.createElement("h2");
+            newDevice.appendChild(channelName);
+
+            fetch(`/api/getChannelByEPG?epg=${device.data.playedMediaId}`).then(res => res.json()).then(data => {
+                if(data.channel)
+                channelName.innerHTML = data.channel.name;
+            })
+
+            newDevice.addEventListener("click", function (e) {
+                device_int = newDevice.value;
+                load();
+            })
+
+            listContainer.appendChild(newDevice);
+            i++;
+        })
+
+    })
+}
 
 
 
-function pushButton(e){
-    var key = e.target.value;
+
+function pushButton(e) {
+    var key = e;
     var mode = 0;
-    fetch(`http://192.168.1.24:3004/${address}:8080/remoteControl/cmd?operation=01&key=${key}&mode=${mode}`,{
+    fetch(`/api/pushButton?device=${device_int}&key=${key}`, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
         headers: {
-          'Content-Type': 'application/json'
-        //   'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
+            //   'Content-Type': 'application/x-www-form-urlencoded'
         },
         redirect: 'follow' // manual, *follow, error
-      })
-    .then(res=> res.json())
-    .then(res=> { setTimeout(function(){load();return res},1000)})
+    })
+        .then(res => res.json())
+        .then(res => { setTimeout(function () { load(); return res }, 1000) })
 }
 
-function getChannel(e){
-    fetch(`http://192.168.1.24:3004/${address}:8080/remoteControl/cmd?operation=09&epg_id=${code}&uui=1`)
+function getChannel(e) {
+    fetch(`/api/setChannelByEPG?device=${device_int}&epg=${code}`)
 }
-
-//SET PUSH BUTTON E LISTENER
-
-document.getElementById("controller").addEventListener("click", function(e){ if(e.target.tagName == "BUTTON" )pushButton(e) })
 
 
 //SET CHANNEL PREVIEW //HTML INCLUDED
-function getChannelPrograms(epg){
-    if(!epg) console.error("Error : EPG id missing")
-    fetch(`http://192.168.1.24:3004/rp-ott-mediation-tv.woopic.com/live/v3/applications/PC/programs?groupBy=channel&period=current&epgIds=${epg}&mco=OFR`,{
+function getChannelPrograms(epg) {
+    if (!epg) console.error("Error : EPG id missing")
+    fetch(`/api/getChannelByEPG?epg=${epg}&program=true`, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
         headers: {
-          'Content-Type': 'application/json'
-        //   'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
+            //   'Content-Type': 'application/x-www-form-urlencoded'
         },
         redirect: 'follow' // manual, *follow, error
-      })
-        .then(res=>res.json())
-        .then(res=>{
+    })
+        .then(res => res.json())
+        .then(res => {
+            var channel = res.channel;
 
-            console.log(res[epg])
 
-            fetch("/channels.json").then(data=>data.json())
-                .then(channels=>{
-                    channels.forEach(channel=>{
-                        if(epg == channel.idEPG){
-
-                            document.getElementById("currentChannel-infos").innerHTML = `
-                            <div><img src="http://192.168.1.24:3004/${channel.logos[2].listLogos[0].path}"></div>
-                            <h1 class="currentChannel-infos-text">${channel.name} - ${channel.slogan}</h1>
-                            `
+            document.getElementById("currentChannel-infos").innerHTML = `
+                <div><img src="${channel.logos[2].listLogos[0].path}"></div>
+                <h1 class="currentChannel-infos-text">${channel.name} - ${channel.slogan}</h1>
+            `
 
 
 
 
 
-                            try{
-                                document.getElementById("currentChannel-programPreviews").innerHTML = "";
+            document.getElementById("currentChannel-programPreviews").innerHTML = "";
 
-                                timeToUpdateNum = 0;
-                                toUpdateTime = [];
+            timeToUpdateNum = 0;
+            toUpdateTime = [];
 
-                                res[epg].forEach(prog=>{
-                                    var progPrev = document.createElement("DIV");
-                                    progPrev.classList="program-preview"
-                                    
-                                    
-                                    var timeData = processTime(prog.diffusionDate, prog.duration)
 
-                                    if(timeData.hasStarted)
-                                        timeTextRemaining = `temps restant : ${timeData.remaining}`
-                                    else
-                                        timeTextRemaining = `durée : ${timeData.remaining}`
+            res.program.forEach(prog => {
 
-                                    progPrev.innerHTML = `<h2>${prog.title}</h2><div class="update-timePreview-${timeToUpdateNum}"><h3>De ${timeData.startTime} à ${timeData.endTime} <h3><h4>(${timeTextRemaining})</h4></div>`
-                                    
-                                    if(prog.programType == "EPISODE")
-                                        progPrev.innerHTML += `<p>${prog.season.serie.title} saison ${prog.season.number} épisode ${prog.episodeNumber}`
 
-                                    toUpdateTime.push({diffusionDate:prog.diffusionDate, duration:prog.duration})
-                                    timeToUpdateNum+=1;
 
-                                    if(prog.covers){
-                                    progPrev.innerHTML += `<div class="program-imagePreview">`
-                                    progPrev.innerHTML += `<img class="program-imgPreview" src="http://192.168.1.24:3004/${prog.covers[1].url}">`
-                                    }
-                                    progPrev.innerHTML += `</div>`
-                                    
-                                    
+                var timeData = processTime(prog.diffusionDate, prog.duration)
+                if (timeData) {
+                    var progPrev = document.createElement("DIV");
+                    progPrev.classList = "program-preview"
 
-                                    
-                                        document.getElementById("currentChannel-programPreviews").appendChild(progPrev);
-                                })
-                            }catch(err){
-                                document.getElementById("currentChannel-programPreviews").innerHTML = `<p>Couldn't get the program</p>`
-                                console.error(err)
-                            }
-                        }
-                    })
-                })
+                    if (timeData.hasStarted)
+                        timeTextRemaining = `temps restant : ${timeData.remaining}`
+                    else
+                        timeTextRemaining = `durée : ${timeData.remaining}`
+
+                    progPrev.innerHTML = `<h2>${prog.title}</h2><div class="update-timePreview-${timeToUpdateNum}"><h3>De ${timeData.startTime} à ${timeData.endTime} <h3><h4>(${timeTextRemaining})</h4></div>`
+
+                    if (prog.programType == "EPISODE")
+                        progPrev.innerHTML += `<p>${prog.season.serie.title} saison ${prog.season.number} épisode ${prog.episodeNumber}`
+
+                    toUpdateTime.push({ diffusionDate: prog.diffusionDate, duration: prog.duration })
+                    timeToUpdateNum += 1;
+
+                    if (prog.covers) {
+                        progPrev.innerHTML += `<div class="program-imagePreview">`
+                        progPrev.innerHTML += `<img class="program-imgPreview" src="${prog.covers[1].url}">`
+                    }
+                    progPrev.innerHTML += `</div>`
+
+
+
+
+                    document.getElementById("currentChannel-programPreviews").appendChild(progPrev);
+                }
+            })
+
         })
 }
 
 
 
-function processTime(startTime, duration){
-    var translation = {y:" ans",mo:" mois",w:" semaines",d:" jours",h:" heures",m:" minutes",s:" secondes"}
+function processTime(startTime, duration) {
+    var translation = { y: " ans", mo: " mois", w: " semaines", d: " jours", h: " heures", m: " minutes", s: " secondes" }
 
 
     //START
-    var start = new Date(startTime*1000);
+    var start = new Date(startTime * 1000);
     var startTimeStr = `${addZero(start.getHours())}h ${addZero(start.getMinutes())}`;
     //NOW
     var now = new Date();
     //END
-    var end = new Date(startTime*1000 + (duration*1000));
-    var endTimeStr =  `${addZero(end.getHours())}h ${addZero(end.getMinutes())}`;
+    var end = new Date(startTime * 1000 + (duration * 1000));
+    var endTimeStr = `${addZero(end.getHours())}h ${addZero(end.getMinutes())}`;
     //REMAINING
-    if(start.getTime()<now.getTime()){
-        var remaining = (end.getTime() - now.getTime())/1000;
+    if (start.getTime() < now.getTime()) {
+        var remaining = (end.getTime() - now.getTime()) / 1000;
         var hasStarted = true;
-    }else{
-        var remaining = (end.getTime() - start.getTime())/1000;
+    } else {
+        var remaining = (end.getTime() - start.getTime()) / 1000;
         var hasStarted = false;
     }
 
+    if (remaining < 0)
+        return;
+
     var remainingTimeStr = parseTimeRemaining(remaining, translation);
 
-    
+
     return {
         endTime: endTimeStr,
         remaining: remainingTimeStr,
@@ -174,10 +205,10 @@ function processTime(startTime, duration){
 
 function addZero(i) {
     if (i < 10) {
-      i = "0" + i;
+        i = "0" + i;
     }
     return i;
-  }
+}
 
 function parseTimeRemaining(time, translation) {
     const years = Math.floor(time / 31556952);
@@ -214,30 +245,30 @@ function parseTimeRemaining(time, translation) {
 
 
 //SET CHANNELS //HTML INCLUDED
-fetch("/channels.json").then(data=>data.json())
-    .then(channels=>{
+fetch("/channels.json").then(data => data.json())
+    .then(channels => {
         console.log(channels);
-        channels.forEach(channel=>{
+        channels.forEach(channel => {
             var chanElem = document.createElement("DIV");
             chanElem.innerHTML = `
             <p>${channel.name}</p>
-            <img src="http://192.168.1.24:3004/${channel.logos[2].listLogos[0].path}">
+            <img src="${channel.logos[2].listLogos[0].path}">
             `;
             chanElem.value = channel.idEPG;
-            chanElem.addEventListener("click", function(e){
+            chanElem.addEventListener("click", function (e) {
                 // /remoteControl/cmd?operation=09&epg_id=CODE_CHAINE&uui=1
-                fetch(`http://192.168.1.24:3004/${address}:8080/remoteControl/cmd?operation=09&epg_id=${channel.idEPG}&uui=1`,{
+                fetch(`/api/setChannelByEPG?device=${device_int}&epg=${channel.idEPG}`, {
                     method: 'GET', // *GET, POST, PUT, DELETE, etc.
                     mode: 'cors', // no-cors, *cors, same-origin
                     cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
                     headers: {
-                    'Content-Type': 'application/json'
-                    //   'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json'
+                        //   'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     redirect: 'follow' // manual, *follow, error
                 })
-                    .then(res=>res.json())
-                    .then(res=>{
+                    .then(res => res.json())
+                    .then(res => {
                         load()
                     })
             })
@@ -248,50 +279,50 @@ fetch("/channels.json").then(data=>data.json())
 
 //UPDATE TIME
 var toUpdateTime = []
-setInterval(function(){
+setInterval(function () {
     var elementNum = 0;
 
-    toUpdateTime.forEach(prog =>{
+    toUpdateTime.forEach(prog => {
         var timeData = processTime(prog.diffusionDate, prog.duration)
         var element = document.getElementsByClassName(`update-timePreview-${elementNum}`)[0]
-        if(timeData.hasStarted)
+        if (timeData.hasStarted)
             timeTextRemaining = `temps restant : ${timeData.remaining}`
         else
             timeTextRemaining = `durée : ${timeData.remaining}`
 
         element.innerHTML = `<h3>De ${timeData.startTime} à ${timeData.endTime} <h3><h4>(${timeTextRemaining})</h4>`
-        elementNum+=1;
-        
+        elementNum += 1;
+
     })
-},1000)
+}, 1000)
 
 
 //OTHER CONTEXT
 
-function getSpecialChannel(context){
-    switch(context){
-    case "home" : setSpecialChannel("HOME");
-        break;
-    case "MAIN_PROCESS" : setSpecialChannel("En veille");
-        break;
-    case "TVEP": setSpecialChannel("TVEP");
-        break;
-    case "netflix": setSpecialChannel("Netflix", "http://192.168.1.24:3004/https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png");
-        break;
-    case "PROMO_TV": setSpecialChannel("Ecran promotionnel");
-        break;
-    case "DisneyPlus": setSpecialChannel("Disney +","http://192.168.1.24:3004/https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney%2B_logo.svg/1200px-Disney%2B_logo.svg.png");
-        break;
-    case "LEGUIDETV": setSpecialChannel("Guide TV");
-        break;
+function getSpecialChannel(context) {
+    switch (context) {
+        case "home": setSpecialChannel("HOME");
+            break;
+        case "MAIN_PROCESS": setSpecialChannel("En veille");
+            break;
+        case "TVEP": setSpecialChannel("TVEP");
+            break;
+        case "netflix": setSpecialChannel("Netflix", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png");
+            break;
+        case "PROMO_TV": setSpecialChannel("Ecran promotionnel");
+            break;
+        case "DisneyPlus": setSpecialChannel("Disney +", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney%2B_logo.svg/1200px-Disney%2B_logo.svg.png");
+            break;
+        case "LEGUIDETV": setSpecialChannel("Guide TV");
+            break;
     }
 }
 
-function setSpecialChannel(name, logoURL){
-    if(!logoURL)
+function setSpecialChannel(name, logoURL) {
+    if (!logoURL)
         logoURL = "https://c.woopic.com/logo-orange.png"
     document.getElementById("currentChannel-infos").innerHTML = `
-                            <div><img src="http://192.168.1.24:3004/${logoURL}"></div>
+                            <div><img src="${logoURL}"></div>
                             <h1 class="currentChannel-infos-text">${name}</h1>
                             `
 }
@@ -299,17 +330,17 @@ function setSpecialChannel(name, logoURL){
 
 //ANIMATIONS AND CONTROLLER
 
-document.getElementById("controller-modifier").addEventListener("click",function(e){
+document.getElementById("controller-modifier").addEventListener("click", function (e) {
     controller(e);
 })
 
 var isControllerHidden = true;
 
-function controller(e){
-    
-    if(isControllerHidden){
+function controller(e) {
+
+    if (isControllerHidden) {
         document.getElementById("controller").style.animation = "slidein 1s forwards"
-    }else{
+    } else {
         document.getElementById("controller").style.animation = "slideout 1s forwards"
     }
 
@@ -317,7 +348,7 @@ function controller(e){
 
 }
 
-document.getElementById("controller").addEventListener("animationstart", function(){console.log("anim-iteration")});
-document.getElementById("controller").addEventListener("animationend", function(){console.log("anim-iteration")});
-document.getElementById("controller").addEventListener("animationiteration", function(){console.log("anim-iteration")});
+document.getElementById("controller").addEventListener("animationstart", function () { console.log("anim-iteration") });
+document.getElementById("controller").addEventListener("animationend", function () { console.log("anim-iteration") });
+document.getElementById("controller").addEventListener("animationiteration", function () { console.log("anim-iteration") });
 

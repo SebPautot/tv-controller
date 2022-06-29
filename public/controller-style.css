@@ -39,6 +39,24 @@ body{
     display: none;
 }
 
+#device-list{
+    padding: 10px;
+    display: flex;
+    align-items: stretch;
+    flex-direction: row;
+    height: 120px;
+    width: 100%;
+    overflow-x: scroll;
+    background-color: #333;
+    color: #ff7900;
+}
+
+#device-list button{
+    
+}
+
+
+
 #currentChannel-preview{
     display: flex;
     align-items:stretch;
