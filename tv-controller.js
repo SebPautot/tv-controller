@@ -42,7 +42,7 @@ function findTV() {
     })
 }
 findTV();
-setInterval(findTV, 6000);
+setInterval(findTV, 1000);
 
 
 app.use("/api", function (req, res, next) {
@@ -78,12 +78,23 @@ app.use("/api", function (req, res, next) {
 
 
         //executes the endpoint's program
-        if (tv_address.length > 0)
+        // if (tv_address.length > 0)
             endpoints.get(endpoint).execute(req, res, fetch, channels, tv_address, keys);
-        else
-            res.send("No device")
+        // else
+        //     res.send("No device")
     }
 
     else res.status(404).json({ status: "ERR_ENDPOINT_NOT_FOUND", message: "The requested endpoint does not exist" });
 
 })
+
+updateTVChannels()
+function updateTVChannels()
+{
+    fetch('https://rp-ott-mediation-tv.woopic.com/api-gw/live/v3/applications/STB4PC/channels').then(d => d.json()).then(data => {
+        fs.writeFileSync('./data/channels.json', JSON.stringify(data))
+        fs.writeFileSync('./public/channels.json', JSON.stringify(data))
+    })
+}
+
+setInterval(updateTVChannels, 604800000); //updates channels every week, remove to prevent updates

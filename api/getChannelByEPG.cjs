@@ -7,7 +7,7 @@ module.exports = {
         var epg = req.query.epg;
         if (!epg) return res.send({ status: "ERR_EPG_REQUIRED", message: "The endpoint requires an epg parameter" })
         channels.forEach(channel => {
-            if (channel.idEPG == epg) {
+            if (channel.id == epg) {
                 if (req.query.program) {
                     fetch(`https://rp-ott-mediation-tv.woopic.com/live/v3/applications/PC/programs?groupBy=channel&period=current&epgIds=${epg}&mco=OFR`)
                         .then((response) => {

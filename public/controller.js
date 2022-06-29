@@ -1,4 +1,3 @@
-var address = "192.168.1.18"
 var device_int = 0;
 
 
@@ -7,9 +6,9 @@ function load() {
     loadDevices()
 
     fetch(`/api/getDeviceStatus?device=${device_int}`, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
+        method: 'GET',
+        mode: 'cors',
+        cache: 'default',
         headers: {
             'Content-Type': 'application/json'
             //   'Content-Type': 'application/x-www-form-urlencoded'
@@ -77,14 +76,13 @@ function pushButton(e) {
     var key = e;
     var mode = 0;
     fetch(`/api/pushButton?device=${device_int}&key=${key}`, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
+        method: 'GET',
+        mode: 'cors',
+        cache: 'default',
         headers: {
             'Content-Type': 'application/json'
-            //   'Content-Type': 'application/x-www-form-urlencoded'
         },
-        redirect: 'follow' // manual, *follow, error
+        redirect: 'follow'
     })
         .then(res => res.json())
         .then(res => { setTimeout(function () { load(); return res }, 1000) })
@@ -99,14 +97,13 @@ function getChannel(e) {
 function getChannelPrograms(epg) {
     if (!epg) console.error("Error : EPG id missing")
     fetch(`/api/getChannelByEPG?epg=${epg}&program=true`, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
+        method: 'GET',
+        mode: 'cors',
+        cache: 'default',
         headers: {
             'Content-Type': 'application/json'
-            //   'Content-Type': 'application/x-www-form-urlencoded'
         },
-        redirect: 'follow' // manual, *follow, error
+        redirect: 'follow'
     })
         .then(res => res.json())
         .then(res => {
@@ -114,8 +111,8 @@ function getChannelPrograms(epg) {
 
 
             document.getElementById("currentChannel-infos").innerHTML = `
-                <div><img src="${channel.logos[2].listLogos[0].path}"></div>
-                <h1 class="currentChannel-infos-text">${channel.name} - ${channel.slogan}</h1>
+                <div><img src="${channel.logos.default}"></div>
+                <h1 class="currentChannel-infos-text">${channel.zappingNumber} - ${channel.name}}</h1>
             `
 
 
@@ -249,15 +246,16 @@ fetch("/channels.json").then(data => data.json())
     .then(channels => {
         console.log(channels);
         channels.forEach(channel => {
-            var chanElem = document.createElement("DIV");
+            var chanElem = document.createElement("BUTTON");
             chanElem.innerHTML = `
+            <h2>${channel.zappingNumber}</h2>
             <p>${channel.name}</p>
-            <img src="${channel.logos[2].listLogos[0].path}">
+            <img src="${channel.logos.default}">
             `;
-            chanElem.value = channel.idEPG;
+            chanElem.value = channel.id;
             chanElem.addEventListener("click", function (e) {
                 // /remoteControl/cmd?operation=09&epg_id=CODE_CHAINE&uui=1
-                fetch(`/api/setChannelByEPG?device=${device_int}&epg=${channel.idEPG}`, {
+                fetch(`/api/setChannelByEPG?device=${device_int}&epg=${channel.id}`, {
                     method: 'GET', // *GET, POST, PUT, DELETE, etc.
                     mode: 'cors', // no-cors, *cors, same-origin
                     cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
