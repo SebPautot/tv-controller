@@ -1,8 +1,8 @@
 # tv-controller
 
-This is a Node.js server that acts as a middleman for communications between a client and one or multiple Orange Liveboxes.
+This is a Node.js server that acts as a middleman for communications between a client and one or multiple Orange TV Decoders.
 
-It has an API meaning you can use it programmatically across a network. It has multiple endpoints that can be used to get and set a Livebox's data.
+It has an API meaning you can use it programmatically across a network. It has multiple endpoints that can be used to get and set a Decoder's data.
 
 # Endpoints
 
@@ -24,7 +24,7 @@ Returns the device's status based on its index in the device list.
 
 ## /api/pushButton?key={key_integer}&mode={ode_integer}&device={device_integer}
 
-It'll send a button press to the Livebox as if it were a remote controller, mode defaults to 0 if omitted, mode 0 is just a button press, mode 1 is when you start holding the button, mode 2 is when you end holding the button.
+It'll send a button press to the Decoder as if it were a remote controller, mode defaults to 0 if omitted, mode 0 is just a button press, mode 1 is when you start holding the button, mode 2 is when you end holding the button.
 
 A key code list is included in the source code.
 
