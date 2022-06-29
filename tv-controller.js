@@ -42,7 +42,7 @@ function findTV() {
     })
 }
 findTV();
-setInterval(findTV, 1000);
+setInterval(findTV, 10000);
 
 
 app.use("/api", function (req, res, next) {
@@ -94,6 +94,9 @@ function updateTVChannels()
     fetch('https://rp-ott-mediation-tv.woopic.com/api-gw/live/v3/applications/STB4PC/channels').then(d => d.json()).then(data => {
         fs.writeFileSync('./data/channels.json', JSON.stringify(data))
         fs.writeFileSync('./public/channels.json', JSON.stringify(data))
+    }).catch(err => {
+        console.log("error fetching channel list, retrying");
+        updateTVChannels()
     })
 }
 
