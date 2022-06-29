@@ -25,7 +25,7 @@ function findTV() {
     //CHECK CURRENT DEVICE IF STILL CONNECTED/DISCONNECTED
     tv_address.forEach(ip => {
         fetch(`http://${ip}:8080/remoteControl/cmd?operation=10`).catch(err => {
-            tv_address.remove(ip);
+            tv_address = tv_address.filter(item => item !== ip);
         })
     })
     //CHECK NETWORK FOR NEW DEVICES

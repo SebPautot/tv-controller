@@ -30,7 +30,7 @@ function load() {
             document.getElementById("currentChannel-infos").innerHTML = `
         <h1 class="currentChannel-infos-text">TV OFFLINE</h1>
         `
-            load()
+            // load()
         })
 }
 
