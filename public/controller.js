@@ -112,7 +112,7 @@ function getChannelPrograms(epg) {
 
             document.getElementById("currentChannel-infos").innerHTML = `
                 <div><img src="${channel.logos.default}"></div>
-                <h1 class="currentChannel-infos-text">${channel.zappingNumber} - ${channel.name}}</h1>
+                <h1 class="currentChannel-infos-text">${channel.zappingNumber} - ${channel.name}</h1>
             `
 
 
