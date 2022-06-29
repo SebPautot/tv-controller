@@ -17,7 +17,7 @@ module.exports = {
                             res.send({ "program": text[epg], "channel": channel })
                         })
                         .catch((e) => {
-                            console.log(e)
+                            res.send({ "program" : [],  "channel": channel })
                         });
                 } else {
                     res.send({ "channel": channel })
