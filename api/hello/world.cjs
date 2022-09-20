@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'hello_world',
+    name: 'world',
     method:["GET"],
     execute(req, res) {
         res.send("hello world");
