@@ -56,7 +56,7 @@ app.use("/api", function (req, res, next) {
         for (const file of commandFiles) {
 
             const command = require(`${directory}/${file}`);
-            // console.log(command, directory.replace(main, "") + "/" + command.name)
+            console.log(command, directory.replace(main, "") + "/" + command.name)
             endpoints.set(directory.replace(main, "") + "/" + command.name, command);
         }
         subdirectories.forEach(subdirectory => searchfiles(directory + "/" + subdirectory.name))
